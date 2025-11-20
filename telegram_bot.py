@@ -9,9 +9,9 @@ def wait(bot, chat_id, question):
     first_answer = 'Таймер запущен...'
     message_id = bot.send_message(chat_id, first_answer)
     bot.create_countdown(timer, notify_progress, chat_id=chat_id,
-                         message_id=message_id, total_time=timer)
+                         message_id=message_id, total_time=timer, bot=bot)
     bot.create_timer(timer, timer_finished, chat_id=chat_id,
-                     question=question)
+                     question=question, bot=bot)
 
 
 def render_progressbar(total, iteration, prefix='', suffix='',
@@ -24,7 +24,7 @@ def render_progressbar(total, iteration, prefix='', suffix='',
     return '{0} |{1}| {2}% {3}'.format(prefix, pbar, percent, suffix)
 
 
-def notify_progress(bot, secs_left, chat_id, message_id, total_time):
+def notify_progress(secs_left, bot, chat_id, message_id, total_time):
     elapsed_time = total_time - secs_left
     progress_bar = render_progressbar(total=total_time,
                                       iteration=elapsed_time)
@@ -43,7 +43,8 @@ def main():
     token = os.getenv('TG_TOKEN')
     chat_id = os.getenv('TG_CHAT_ID')
     bot = Bot(token)
-    bot.reply_on_message(wait, bot=bot)
+    bot.reply_on_message(lambda chat_id, question:
+                         wait(bot, chat_id, question))
     bot.run_bot()
 
 
